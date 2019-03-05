@@ -64,7 +64,7 @@ class ServeCommand extends \Illuminate\Foundation\Console\ServeCommand
                 $defaultIniSetting = $this->getDefaultIniSetting();
                 $options = collect(\ini_get_all('xdebug', false))
                     ->filter(function ($value, $key) use ($defaultIniSetting) {
-                        return $value === $defaultIniSetting[$key];
+                        return $value !== $defaultIniSetting[$key];
                     })
                     ->map(function ($value, $key) {
                         return '-d'.$key.'='.ProcessUtils::escapeArgument($value);
