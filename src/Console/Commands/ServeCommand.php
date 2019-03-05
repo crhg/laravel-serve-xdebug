@@ -89,6 +89,11 @@ class ServeCommand extends \Illuminate\Foundation\Console\ServeCommand
             throw new \RuntimeException('cannot get default ini setting');
         }
 
-        return json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+        $setting = json_decode($json);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new \RuntimeException('json decode error: '.json_last_error_msg());
+        }
+
+        return $setting;
     }
 }
