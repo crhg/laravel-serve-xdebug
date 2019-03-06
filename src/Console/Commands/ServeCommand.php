@@ -29,6 +29,19 @@ class ServeCommand extends \Illuminate\Foundation\Console\ServeCommand
     protected $description = 'Serve the application on the PHP development server with xdebug';
 
     /**
+     * xdebug options
+     *
+     * @var ?string
+     */
+    protected $xdebugOptions;
+
+    /**
+     * path of detected php
+     *
+     * @var ?string
+     */
+    protected $php;
+    /**
      * Get the full server command.
      *
      * @return string
@@ -46,23 +59,19 @@ class ServeCommand extends \Illuminate\Foundation\Console\ServeCommand
 
     protected function getPhp(): string
     {
-        static $php;
-
-        if ($php === null) {
-            $php = ProcessUtils::escapeArgument((new PhpExecutableFinder)->find(false));
+        if ($this->php === null) {
+            $this->php = ProcessUtils::escapeArgument((new PhpExecutableFinder)->find(false));
         }
 
-        return $php;
+        return $this->php;
     }
 
-    protected function getXdebugOptions(): string
+    public function getXdebugOptions(): string
     {
-        static $options;
-
-        if ($options === null) {
+        if ($this->xdebugOptions === null) {
             if (extension_loaded('xdebug')) {
                 $defaultIniSetting = $this->getDefaultIniSetting();
-                $options = collect(\ini_get_all('xdebug', false))
+                $this->xdebugOptions = collect(\ini_get_all('xdebug', false))
                     ->filter(function ($value, $key) use ($defaultIniSetting) {
                         return $value !== $defaultIniSetting[$key];
                     })
@@ -72,11 +81,11 @@ class ServeCommand extends \Illuminate\Foundation\Console\ServeCommand
                     ->implode(' ');
             } else {
                 $this->warn('no xdebug extension');
-                $options = '';
+                $this->xdebugOptions = '';
             }
         }
 
-        return $options;
+        return $this->xdebugOptions;
     }
 
     protected function getDefaultIniSetting(): array
